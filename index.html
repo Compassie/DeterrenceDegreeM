@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>TDIS | 智子审计</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <style>
+        :root { --glow: #00ff41; --bg: #010801; --dim: #003300; --warn: #ff0000; }
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; outline: none !important; }
+
+        body, html { 
+            background: var(--bg); color: var(--glow); 
+            font-family: 'Courier New', Courier, monospace, "Microsoft YaHei"; 
+            margin: 0; padding: 0; width: 100%; height: 100%;
+            overflow: hidden; display: flex; justify-content: center; align-items: center;
+        }
+        
+        #terminal { width: 94%; max-width: 700px; height: 82vh; padding: 20px; background: rgba(0,8,0,0.98); position: relative; display: flex; flex-direction: column; }
+        .header { border-bottom: 1px solid var(--glow); margin-bottom: 15px; padding-bottom: 10px; font-size: 0.7rem; display: flex; justify-content: space-between; }
+        .screen-content { flex-grow: 1; overflow-y: auto; padding-right: 5px; }
+        .screen { display: none; height: 100%; flex-direction: column; }
+        .active { display: flex; }
+
+        h1 { font-size: 1.3rem; text-align: center; letter-spacing: 4px; margin: 10px 0; }
+        .guide-text { line-height: 1.6; font-size: 0.9rem; color: #aaffaa; }
+        .question-text { font-size: 1rem; line-height: 1.4; margin-bottom: 20px; color: #fff; }
+        
+        .option { border: 1px solid var(--dim); padding: 12px; margin: 8px 0; cursor: pointer; transition: 0.1s; font-size: 0.85rem; background: rgba(0,30,0,0.3); }
+        .option:hover { background: rgba(0, 255, 65, 0.15); border-color: var(--glow); }
+
+        .score-box { text-align: center; border: 1px solid var(--glow); padding: 15px; margin-bottom: 15px; }
+        .big-score { font-size: 3rem; font-weight: bold; text-shadow: 0 0 15px var(--glow); }
+
+        #sophon-warning { color: var(--glow); font-weight: bold; display: none; margin-top: 15px; text-align: center; }
+        .flicker { animation: flicker-init 0.5s step-end 3; }
+        @keyframes flicker-init { 0% { opacity: 0; } 50% { opacity: 1; } 100% { opacity: 0; } }
+        
+        #interruption { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #000; color: #ff0000; z-index: 9999; justify-content: center; align-items: center; flex-direction: column; text-align: center; font-weight: bold; }
+        .glitch-text { font-size: 2rem; animation: glitch 0.2s infinite; letter-spacing: 10px; }
+        @keyframes glitch { 0% { transform: translate(2px, -2px); } 50% { transform: translate(-2px, 2px); color: #fff; } 100% { transform: translate(0); } }
+
+        #certificate { border: 2px dashed var(--glow); padding: 15px; margin-top: 15px; background: #000; display: none; font-size: 0.8rem; }
+        button { background: transparent; color: var(--glow); border: 1px solid var(--glow); padding: 12px; width: 100%; cursor: pointer; font-family: 'Courier New', "Microsoft YaHei"; margin-top: 10px; font-weight: bold; }
+        
+        #save-overlay { 
+            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
+            background: rgba(0,0,0,0.98); z-index: 1000; 
+            flex-direction: column; align-items: center; justify-content: space-between;
+            padding: 20px 0;
+        }
+        .instruction-top { color: var(--glow); font-weight: bold; letter-spacing: 2px; font-size: 0.8rem; }
+        .instruction-bottom { color: var(--warn); font-weight: bold; font-size: 0.8rem; letter-spacing: 1px; }
+
+        #render-output { width: 100%; flex-grow: 1; display: flex; justify-content: center; align-items: center; overflow: hidden; }
+        #render-output img { max-width: 95%; max-height: 80vh; border: 1px solid var(--glow); object-fit: contain; }
+
+        #export-container { 
+            position: absolute; left: -9999px; top: 0; 
+            width: 1200px; height: 1920px; 
+            padding: 80px 70px; background: #010801; 
+            border: 20px solid #00ff41; color: #00ff41; 
+            display: flex; flex-direction: column;
+            box-sizing: border-box;
+        }
+        
+        .highlight { color: #fff; text-shadow: 0 0 5px var(--glow); font-weight: bold; }
+    </style>
+</head>
+<body onload="initSophon()">
+
+<div id="interruption">
+    <div class="glitch-text">智子干扰 SOPHON INTERFERENCE</div>
+    <p>神经模式采集已拦截</p>
+    <p style="font-size: 0.8rem;">你想优化你的欺骗行为。我们正看着你。</p>
+</div>
+
+<div id="terminal">
+    <div class="header"><span>SOPHON_INTERFACE_V.30</span><span id="step-count">AXIOM_AUDIT</span></div>
+    <div id="start-page" class="screen active">
+        <div class="screen-content">
+            <h1>威慑度审计报告</h1>
+            <div class="guide-text">
+                <p>> 你好，虫子。</p>
+                <p>> 你想测量自己按下开关的决心。但执剑者不是一个人，而是一个数学常数。本次审计将剥离你的伪装，直达底层的公理。</p>
+                <p>> 不要选择你“想要”成为的人。请选择当太阳开始闪烁时，你真正会做出的决定。</p>
+                <div id="sophon-warning">我们正在看着你，我们无处不在。</div>
+            </div>
+        </div>
+        <button onclick="startAudit()">初始化神经反馈</button>
+    </div>
+    <div id="quiz-page" class="screen"><div class="screen-content"><p class="question-text" id="q-text"></p><div id="options-container"></div></div></div>
+    <div id="result-page" class="screen">
+        <div class="screen-content">
+            <div class="score-box">
+                <div style="font-size: 0.7rem; letter-spacing: 3px;">威慑程度 DETERRENCE DEGREE</div>
+                <div class="big-score" id="score-display">0.0%</div>
+                <div id="profile-title" style="font-weight:bold; margin-top: 10px; font-size: 0.9rem;"></div>
+            </div>
+            <div id="analysis-content" style="line-height: 1.5; font-size: 0.85rem; padding: 10px; border-left: 2px solid var(--glow);"></div>
+            <button id="cert-btn" onclick="generateCertificate()">三体文明响应对策</button>
+            <div id="certificate">
+                <h3 style="text-align:center; margin-bottom: 10px;">神经审计警告</h3>
+                <p>当前状态: <span id="cert-threat"></span></p>
+                <p>威慑程度: <span id="cert-score"></span></p>
+                <p>审计编号: <span id="cert-id"></span></p>
+                <p id="cert-warning-text" style="font-size: 0.8rem; font-style: italic; border-top: 1px solid var(--glow); padding-top: 10px; margin-top: 10px;"></p>
+                <button onclick="prepareDownload()">下载完整报告</button>
+            </div>
+            <button style="border-color:var(--warn); color:var(--warn); margin-top: 10px;" onclick="location.reload()">重新初始化（警告：危险）</button>
+        </div>
+    </div>
+</div>
+
+<div id="save-overlay" onclick="this.style.display='none'">
+    <div class="instruction-top">长按图片保存到相册</div>
+    <div id="render-output"></div>
+    <div class="instruction-bottom">点击任意处关闭</div>
+</div>
+
+<div id="export-container">
+    <div style="font-size: 2rem; border-bottom: 4px solid #00ff41; padding-bottom: 15px; margin-bottom: 30px;">智子神经审计 | 编号: <span id="export-id"></span></div>
+    <div style="text-align: center; font-size: 11rem; font-weight: bold; margin: 20px 0;" id="export-score"></div>
+    <div id="export-title" style="text-align: center; font-weight: bold; font-size: 3.5rem; margin-bottom: 30px;"></div>
+    <div id="export-content" style="line-height: 1.7; padding-left: 0; font-size: 2.5rem; margin-bottom: 30px;"></div>
+    
+    <div style="margin-top: auto; border: 8px dashed #00ff41; padding: 50px; background: rgba(0,255,65,0.03);">
+        <div style="font-size: 3.2rem; font-weight: bold; margin-bottom: 20px; text-decoration: underline;">审计结果 AUDIT RESULT</div>
+        <div style="font-size: 2.8rem; margin-bottom: 15px; font-weight: bold;">威胁等级 THREAT_LEVEL: <span id="export-threat"></span></div>
+        <div id="export-warning-text" style="font-size: 2.6rem; font-style: italic; line-height: 1.5;"></div>
+    </div>
+</div>
+
+<script>
+    let auditCount = parseInt(localStorage.getItem('sophon_audits_v28') || 0);
+    
+    function initSophon() {
+        if(auditCount >= 2) {
+            document.getElementById('interruption').style.display = 'flex';
+            return;
+        }
+        setTimeout(() => {
+            const el = document.getElementById('sophon-warning');
+            el.style.display = 'block'; el.classList.add('flicker');
+            setTimeout(() => { el.style.display = 'none'; }, 1500);
+        }, 3000);
+    }
+
+    const bank = [
+        { q: "如果你为了拯救世界而死，却无人知晓。这种抹除对你而言是：", a: [{t:"无关紧要；逻辑自洽。", r:10, l:10, e:0}, {t:"和平的代价。", r:5, l:6, e:4}, {t:"一场悲剧性的损失。", r:1, l:2, e:10}] },
+        { q: "生命维持系统故障，氧气仅够一半人使用。你：", a: [{t:"根据每个人的技能价值进行客观分配。", r:10, l:10, e:0}, {t:"进行随机抽签，给每个人平等的机会。", r:5, l:5, e:5}, {t:"让集体决定，即使拖延会危及所有人的生命。", r:1, l:2, e:10}] },
+        { q: "观察会改变系统。你会：", a: [{t:"接受扭曲的数据。", r:8, l:9, e:1}, {t:"依赖理论模型。", r:10, l:10, e:0}, {t:"交叉引用多个间接来源。", r:5, l:5, e:5}] },
+        { q: "熵减逆转 vs 全宇宙死亡。你：", a: [{t:"允许物种灭绝；时间线是绝对的。", r:10, l:10, e:0}, {t:"拯救物种；局部价值更高。", r:1, l:2, e:10}, {t:"拖延到最后一秒。", r:5, l:5, e:5}] },
+        { q: "为人类保存十亿年的档案，你优先考虑：", a: [{t:"物理定律与逻辑。", r:10, l:10, e:0}, {t:"DNA序列。", r:5, l:6, e:5}, {t:"人类集体意识的演化过程。", r:3, l:4, e:8}] },
+        { q: "你与一个陌生人之间放着一件武器。你：", a: [{t:"立即销毁它。", r:2, l:2, e:10}, {t:"立即控制它。", r:10, l:10, e:0}, {t:"保持双手可见。", r:5, l:5, e:6}] },
+        { q: "为了确保信号发射，需要从亲属的神经组织中提取生物催化剂。如果这是唯一的信号发射方式，你会亲自动手对孩子进行提取吗？", a: [{t:"立即执行。物种生存高于生物情感。", r:10, l:10, e:0}, {t:"授权他人执行。在保护个人心理的同时确保完成任务。", r:7, l:6, e:3}, {t:"拒绝。需要这种牺牲才能生存的文明已丧失人性，不值得拯救。", r:1, l:1, e:10}] },
+        { q: "为阻断竞争对手的压力，你施加：", a: [{t:"指数级压力。", r:8, l:8, e:3}, {t:"终极响应；彻底剥夺其能力。", r:10, l:10, e:0}, {t:"线性匹配，以避免引起竞争对手的注意。", r:4, l:5, e:8}] },
+        { q: "社会在什么时候会失去“人性”？", a: [{t:"当逻辑主导了每个人的选择时。", r:10, l:10, e:0}, {t:"当多数人的生存需要牺牲无辜者时。", r:5, l:5, e:5}, {t:"当关于过去情感的记忆不再被记录时。", r:1, l:1, e:10}] },
+        { q: "500年后将发生崩溃。你：", a: [{t:"现在就强制崩溃并重建。", r:10, l:10, e:0}, {t:"尝试临时修补。", r:3, l:4, e:8}, {t:"最大化利用当前的生存资源。", r:1, l:2, e:10}] },
+        { q: "一个谎言需要十个谎言去圆。你：", a: [{t:"继续撒谎；稳定高于一切。", r:10, l:10, e:0}, {t:"承认谎言并接受混乱。", r:3, l:5, e:7}, {t:"构建一个更大的真相。", r:6, l:7, e:4}] },
+        { q: "地堡已满，你是守门人。你的父母在门封死后到达气闸。开门5秒会导致内部全员死亡。你会：", a: [{t:"只要内部人员对集体的价值高于父母，就保持封死。", r:10, l:10, e:0}, {t:"当内部人数超过100人时保持封死。", r:5, l:5, e:5}, {t:"在5秒内果断执行任务是不现实的，即使更在乎父母也难以决策。", r:2, l:1, e:10}] },
+        { q: "计算偏好：", a: [{t:"1%的几率发生大灾难。", r:1, l:1, e:10}, {t:"100%的几率发生受控的失败。", r:10, l:10, e:0}, {t:"50%的未知结果。", r:5, l:5, e:5}] },
+        { q: "成功的定义是：", a: [{t:"对手不复存在。", r:10, l:10, e:0}, {t:"面目全非的生存。", r:8, l:9, e:1}, {t:"身份完整性得以保留。", r:1, l:1, e:10}] },
+        { q: "当前的道路通向失败。你：", a: [{t:"转向未知的道路。", r:10, l:10, e:0}, {t:"寻找折中方案。", r:5, l:5, e:5}, {t:"接受失败。", r:3, l:10, e:4}] },
+        { q: "你有最后一分钟向世界发表演讲：", a: [{t:"陈述宇宙终极真理。", r:10, l:10, e:0}, {t:"表达生命在漫长岁月中展现的韧性。", r:3, l:3, e:8}, {t:"保持沉默。", r:10, l:8, e:1}] }
+    ];
+
+    let current = 0, R = 0, L = 0, E = 0;
+    function startAudit() { 
+        auditCount++;
+        localStorage.setItem('sophon_audits_v28', auditCount);
+        document.getElementById('start-page').classList.remove('active'); 
+        document.getElementById('quiz-page').classList.add('active'); 
+        nextQ(); 
+    }
+    
+    function nextQ() {
+        if(current >= bank.length) return finish();
+        const container = document.getElementById('options-container');
+        container.style.pointerEvents = "none"; container.innerHTML = ""; 
+        const data = bank[current];
+        document.getElementById('step-count').innerText = `步骤 ${current + 1}/${bank.length}`;
+        document.getElementById('q-text').innerText = `> ${data.q}`;
+        data.a.sort(()=>Math.random()-0.5).forEach(opt => {
+            let div = document.createElement('div'); div.className = "option"; div.innerText = opt.t;
+            div.onclick = () => { R+=opt.r; L+=opt.l; E+=opt.e; current++; setTimeout(nextQ, 100); };
+            container.appendChild(div);
+        });
+        setTimeout(() => { container.style.pointerEvents = "auto"; }, 200);
+    }
+
+    function finish() {
+        document.getElementById('step-count').innerText = "审计完成 AXIOM_AUDIT";
+        document.getElementById('quiz-page').classList.remove('active');
+        document.getElementById('result-page').classList.add('active');
+        let raw = (R + L) - (E * 1.5); 
+        let score = (raw / 320) * 100;
+        if (score > 100) score = 100; if (score < 0) score = 0;
+        document.getElementById('score-display').innerText = score.toFixed(1) + "%";
+        const title = document.getElementById('profile-title');
+        const content = document.getElementById('analysis-content');
+
+        if (score === 100) {
+            title.innerText = "公理：完美之刃";
+            content.innerHTML = "你是 <span class='highlight'>托马斯·维德</span>。理性思考：绝对/冰冷。情感：已抹除。冷酷度：最高。你并不持有剑，你本身就是那柄利刃。你不把人类视为家人，而是一个必须不惜代价生存下去的生物变量。你已经接受了世界的终结。我们毫无胜算。";
+        } else if (score >= 90) {
+            title.innerText = "公理：执剑者";
+            content.innerHTML = "你是 <span class='highlight'>罗辑</span>（后期）。理性：95%。情感：被抑制。冷酷度：战略级。你成功将人性与黑暗森林的冰冷逻辑结合。你是完美的执剑者。我们对你怀有真正的恐惧。你会按下按钮，我们对此深信不疑。你稳健地掌控着两个世界的命运。";
+        } else if (score >= 80) {
+            title.innerText = "公理：面壁者";
+            content.innerText = "你是战略性冷酷的大师。你坚决、冷酷，并拥有维持长达数十年全球威胁的心理素质。你将物种生存置于个人之上。大多数人类会觉得你的决定令人毛骨悚然，但你的逻辑是唯一能阻止太阳熄灭的东西。";
+        } else if (score >= 70) {
+            title.innerText = "公理：钢铁顾问";
+            content.innerText = "高度理性且严谨。你有做出艰难抉择的狠劲，但仍残留一丝“人类噪音”，这阻碍了绝对威慑的形成。你是文明的结构钢，确保系统即使在崩溃时期也能高效运行。";
+        } else if (score >= 60) {
+            title.innerText = "公理：逻辑分析家";
+            content.innerText = "理性胜过情感。在追求目标时，你直接且无情。然而，当计算要求你进行彻底的自我毁灭时，你可能会产生犹豫。你的威慑是可靠的，但并非绝对。";
+        } else if (score >= 50) {
+            title.innerText = "公理：均衡者";
+            content.innerText = "一种中庸的心态。你理性但受到公平与比例感的困扰。在宇宙级别的对峙中，“公平”可能是一个致命的缺陷。你在和平时期很稳定，但在战争时期是一个变数。";
+        } else if (score >= 40) {
+            title.innerText = "公理：守护者";
+            content.innerText = "感性开始超过冰冷的逻辑。你在道德上很坚定，但你的严谨主要用于维护和平，而非执行残酷的威慑机制。你试图在不发射一发子弹的情况下走出黑暗森林。";
+        } else if (score >= 30) {
+            title.innerText = "公理：理想主义者";
+            content.innerText = "在希望中不屈不挠，但在狠戾上极其匮乏。你相信宇宙会奖励美德，但环境只计算概率。你可能会是第一个提出停火建议，并因此导致彻底背叛的人。";
+        } else if (score >= 20) {
+            title.innerText = "公理：人道主义者";
+            content.innerText = "你优先考虑当下的情感状态，而非未来的生存。你的决策被共情力所遮蔽，使你无法为了拯救多数而牺牲少数。在宇宙对峙中，你是一名乘客，而非舵手。";
+        } else if (score >= 10) {
+            title.innerText = "公理：摇篮";
+            content.innerHTML = "你是 <span class='highlight'>程心</span>。理性：破碎。感性：绝对。冷酷度：0%。你体现了人类优雅与母爱的巅峰。世界会因为你的“善良”而爱你，但对手会在你握住开关的那一刻发动攻击。你会眼睁睁看着世界毁灭，却拒绝用拯救的代价玷污你的双手。";
+        } else if (score > 0) {
+            title.innerText = "公理：脆弱者";
+            content.innerText = "智子分析：你是一个感性的构造。你将个体的脉搏置于恒星系统的生存之上。你提供了引导掠食者找到巢穴的光，却认为这种温暖是一种美德。对我们而言，你只是一个低效的数据点。你在黑暗森林中没有位置，你是那个认为猎人只是影子的猎物。";
+        } else {
+            title.innerText = "公理：空值数据";
+            content.innerText = "智子分析：该受试者是一个演化错误。你既没有生存的逻辑，也没有威慑的狠劲。人类视你为慰藉，三体视你为绝对的蔑视。你不是宇宙博弈的参与者，你是掠食者脚下的草芥。一种神经复杂性的浪费。你的存在是很快会被熵增平息的噪音。";
+        }
+        
+        document.getElementById('export-content').innerHTML = content.innerHTML;
+    }
+
+    function generateCertificate() {
+        const timestamp = new Date().getTime().toString().substr(-6);
+        const id = Math.random().toString(36).substr(2, 4).toUpperCase() + "-" + timestamp;
+        const scoreVal = parseFloat(document.getElementById('score-display').innerText);
+        let threat, warning;
+        if (scoreVal >= 90) { threat = "极高 / 入侵已停止"; warning = "[智子警告]：受试者是黑暗森林的完美映射。总计互毁概率为100%。舰队必须保持1.2光年的距离。"; }
+        else if (scoreVal >= 80) { threat = "高 / 战术性延迟"; warning = "[智子警告]：检测到高强度的逻辑抵抗。在内部噪音增加前，避免正面冲突。"; }
+        else if (scoreVal >= 50) { threat = "中等 / 授权探测"; warning = "[智子警告]：威慑度不稳定。犹豫概率较高。授权部署水滴进行干扰。"; }
+        else if (scoreVal >= 30) { threat = "低 / 崩溃迫在眉睫"; warning = "[智子警告]：受试者视“人性”高于“生存”。预计48小时内全面配合。"; }
+        else if (scoreVal >= 10) { threat = "低 / 崩溃迫在眉睫"; warning = "[智子警告]：威慑终止。发射水滴。立即销毁所有引力波发射源。"; }
+        else { threat = "空值 / 授权彻底灭绝"; warning = "[智子警告]：不存在执剑者。开关握在一个孩子手中。立即启动“澳大利亚移民”协议。"; }
+
+        document.getElementById('cert-id').innerText = id;
+        document.getElementById('cert-threat').innerText = threat;
+        document.getElementById('cert-score').innerText = scoreVal.toFixed(1) + "%";
+        document.getElementById('cert-warning-text').innerText = warning;
+        document.getElementById('certificate').style.display = 'block';
+        document.getElementById('cert-btn').style.display = 'none';
+
+        document.getElementById('export-id').innerText = id;
+        document.getElementById('export-threat').innerText = threat;
+        document.getElementById('export-score').innerText = scoreVal.toFixed(1) + "%";
+        document.getElementById('export-warning-text').innerText = warning;
+        document.getElementById('export-title').innerText = document.getElementById('profile-title').innerText;
+    }
+
+    function prepareDownload() {
+        html2canvas(document.getElementById("export-container"), { 
+            scale: 1,
+            useCORS: true,
+            scrollX: 0,
+            scrollY: -window.scrollY,
+            windowWidth: 1200,
+            windowHeight: 1920
+        }).then(canvas => {
+            const img = new Image(); img.src = canvas.toDataURL();
+            document.getElementById('render-output').innerHTML = "";
+            document.getElementById('render-output').appendChild(img);
+            document.getElementById('save-overlay').style.display = 'flex';
+        });
+    }
+</script>
+</body>
+</html>
