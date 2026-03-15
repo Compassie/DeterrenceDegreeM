@@ -120,7 +120,8 @@
 
 <div id="export-container">
     <div style="font-size: 2rem; border-bottom: 4px solid #00ff41; padding-bottom: 15px; margin-bottom: 30px;">SOPHON NEURAL AUDIT | ID: <span id="export-id"></span></div>
-    <div style="text-align: center; font-size: 11rem; font-weight: bold; margin: 20px 0;" id="export-score"></div>
+    <div style="text-align: center; font-size: 4rem; letter-spacing: 15px; margin-top: 40px; font-weight: bold;">威慑度</div>
+    <div style="text-align: center; font-size: 11rem; font-weight: bold; margin: 10px 0;" id="export-score"></div>
     <div id="export-title" style="text-align: center; font-weight: bold; font-size: 4.5rem; margin-bottom: 30px;"></div>
     <div id="export-content" style="line-height: 1.7; padding-left: 0; font-size: 3rem; margin-bottom: 30px;"></div>
     
@@ -202,40 +203,40 @@
         const content = document.getElementById('analysis-content');
 
         if (score === 100) {
-            title.innerText = "公理：完美之刃";
+            title.innerText = "模型：完美之刃";
             content.innerHTML = "你是 <span class='highlight'>托马斯·维德</span>。理性思考：绝对/冰冷。情感：已抹除。冷酷度：最高。你并不持有剑，你就是利刃本身。你不把人类视为家人，而是一个必须不惜代价生存下去的生物变量。你已经接受了世界的终结。我们毫无胜算。";
         } else if (score >= 90) {
-            title.innerText = "公理：执剑者";
+            title.innerText = "模型：执剑者";
             content.innerHTML = "你是 <span class='highlight'>罗辑</span>（后期）。理性：95%。情感：被抑制。冷酷度：战略级。你成功将人性与黑暗森林的冰冷逻辑结合。你是完美的执剑者。我们对你怀有真正的恐惧。你会按下按钮，我们对此深信不疑。你牢牢地掌控着两个世界的命运。";
         } else if (score >= 80) {
-            title.innerText = "公理：面壁者";
+            title.innerText = "模型：面壁者";
             content.innerText = "你是战略性冷酷的大师。你坚决、冷酷，并拥有维持长达数十年全球威胁的心理素质。你将物种生存置于个人之上。大多数人类会觉得你的决定令人毛骨悚然，但你的逻辑是唯一能阻止太阳熄灭的东西。";
         } else if (score >= 70) {
-            title.innerText = "公理：钢铁顾问";
+            title.innerText = "模型：钢铁顾问";
             content.innerText = "高度理性且严谨。你有做出艰难抉择的狠劲，但仍残留一丝“人类噪音”，这阻碍了绝对威慑的形成。你是文明的结构钢，确保系统即使在崩溃时期也能高效运行。";
         } else if (score >= 60) {
-            title.innerText = "公理：逻辑分析家";
+            title.innerText = "模型：逻辑分析家";
             content.innerText = "理性胜过情感。在追求目标时，你直接且无情。然而，当计算要求你进行彻底的自我毁灭时，你可能会产生犹豫。你的威慑是可靠的，但并非绝对。";
         } else if (score >= 50) {
-            title.innerText = "公理：均衡者";
+            title.innerText = "模型：均衡者";
             content.innerText = "一种中庸的心态。你理性但受到公平与比例感的困扰。在宇宙级别的对峙中，“公平”可能是一个致命的缺陷。你在和平时期很稳定，但在战争时期是一个变数。";
         } else if (score >= 40) {
-            title.innerText = "公理：守护者";
+            title.innerText = "模型：守护者";
             content.innerText = "感性开始超过冰冷的逻辑。你在道德上很坚定，但你的严谨主要用于维护和平，而非执行残酷的威慑机制。你试图在不发射一发子弹的情况下走出黑暗森林。";
         } else if (score >= 30) {
-            title.innerText = "公理：理想主义者";
+            title.innerText = "模型：理想主义者";
             content.innerText = "在希望中不屈不挠，但在狠戾上极其匮乏。你相信宇宙会奖励美德，但环境只计算概率。你可能会是第一个提出停火建议，并因此导致彻底背叛的人。";
         } else if (score >= 20) {
-            title.innerText = "公理：人道主义者";
+            title.innerText = "模型：人道主义者";
             content.innerText = "你优先考虑当下的情感状态，而非未来的生存。你的决策被共情力所遮蔽，使你无法为了拯救多数而牺牲少数。在宇宙对峙中，你是一名乘客，而非舵手。";
         } else if (score >= 10) {
-            title.innerText = "公理：摇篮";
+            title.innerText = "模型：摇篮";
             content.innerHTML = "你是 <span class='highlight'>程心</span>。理性：破碎。感性：绝对。冷酷度：0%。你体现了人类优雅与母爱的巅峰。世界会因为你的“善良”而爱你，但对手会在你握住开关的那一刻发动攻击。你会眼睁睁看着世界毁灭，却拒绝用拯救的代价玷污你的双手。";
         } else if (score > 0) {
-            title.innerText = "公理：脆弱者";
+            title.innerText = "模型：弱者";
             content.innerText = "智子分析：你是一个感性的构造。你将个体的脉搏置于恒星系统的生存之上。你提供了引导掠食者找到巢穴的光，却认为这种温暖是一种美德。对我们而言，你只是一个低效的数据点。你在黑暗森林中没有位置，你是那个认为猎人只是影子的猎物。";
         } else {
-            title.innerText = "公理：空值数据";
+            title.innerText = "模型：空值数据";
             content.innerText = "智子分析：该受试者是一个演化错误。你既没有生存的逻辑，也没有威慑的狠劲。人类视你为慰藉，三体视你为绝对的蔑视。你不是宇宙博弈的参与者，你是掠食者脚下的草芥。一种神经复杂性的浪费。你的存在是很快会被熵增平息的噪音。";
         }
         
